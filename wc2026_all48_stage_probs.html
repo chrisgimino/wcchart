@@ -277,8 +277,8 @@ const PROBS={R32:2,R16:3,QF:4,SF:5,Final:6};
 function pct(v){return v>=.01?(v*100).toFixed(1)+'%':(v*100).toFixed(2)+'%';}
 
 // ── TABLE VIEW ──
-let sk='pW',sd=-1;
-function s(k){sk===k?sd*=-1:(sk=k,sd=k==='name'||k==='g'?1:-1);rt();}
+let sk='pW',sd=1;
+function s(k){sk===k?sd*=-1:(sk=k,sd=k==='name'||k==='g'?1:1);rt();}
 function rt(){
   const q=document.getElementById('q1').value.toLowerCase();
   const gf=document.getElementById('gf1').value;

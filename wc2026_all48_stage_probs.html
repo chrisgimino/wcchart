@@ -57,16 +57,62 @@ tr:hover td{background:#2a2a2a}
 .exit .sl-s,.exit .sl-p,.exit .sl-m{color:#555}
 .note{font-size:11px;color:#666;margin:0 0 .75rem;font-style:italic}
 .proj-divider{font-size:10px;color:#555;padding:4px 10px;background:#181818;border-bottom:1px solid rgba(255,255,255,0.08);font-style:italic;letter-spacing:.02em}
+/* RANKINGS */
+.pos-fw{color:#f97316}.pos-md{color:#3b82f6}.pos-d{color:#22c55e}.pos-g{color:#a78bfa}
+.score-bar{height:4px;border-radius:2px;background:rgba(255,255,255,0.1);width:60px;display:inline-block;vertical-align:middle;margin-right:4px}
+.score-fill{height:100%;border-radius:2px;background:#f97316}
+/* SAFE PAIRS */
+.sp-tbl td,.sp-tbl th{text-align:center;padding:5px 7px;font-size:12px}
+.sp-tbl td.row-lbl{text-align:left;font-weight:500;color:#e5e5e5}
+.sp-tbl th.col-lbl{text-align:left}
+.sp-r16{background:#f7c1c133;color:#ef4444;font-weight:600}
+.sp-qf{background:#d9770633;color:#d97706;font-weight:600}
+.sp-sf{background:#1d1d1d;color:#a78bfa}
+.sp-fin{background:#1d9e7522;color:#34d399;font-weight:500}
+.sp-diag{color:#444}
+.sp-sub{font-size:10px;color:#666;display:block}
 </style>
 <h2 class="sr-only">World Cup 2026 stage probabilities and team schedules for all 48 teams</h2>
 <div class="wrap">
 <div class="vt">
-  <button class="vb on" id="vb1" onclick="sv(1)">Table view</button>
-  <button class="vb" id="vb2" onclick="sv(2)">Schedule view</button>
+  <button class="vb on" id="vb0" onclick="sv(0)">Best Ball Rankings</button>
+  <button class="vb" id="vb1" onclick="sv(1)">Odds Tool</button>
+  <button class="vb" id="vb2" onclick="sv(2)">Schedule Tool</button>
+  <button class="vb" id="vb3" onclick="sv(3)">Stack Pairs</button>
 </div>
 
-<!-- VIEW 1: TABLE -->
-<div id="v1">
+<!-- VIEW 0: BEST BALL RANKINGS -->
+<div id="v0">
+<div class="ctl">
+  <input id="q0" placeholder="Search player…" oninput="rr()">
+  <select id="pos0" onchange="rr()">
+    <option value="">All positions</option>
+    <option value="FW">FW</option>
+    <option value="MD">MD</option>
+    <option value="D">D</option>
+    <option value="G">G</option>
+  </select>
+  <select id="tm0" onchange="rr()">
+    <option value="">All teams</option>
+  </select>
+</div>
+<p class="note">RotoGrinders World Cup 2026 best ball rankings. UD Score reflects projected fantasy value based on expected games, role, and output.</p>
+<div class="tbl-wrap">
+<table><thead><tr>
+  <th onclick="rrs('rank')" class="lft sd">Rank</th>
+  <th class="lft" onclick="rrs('name')">Player</th>
+  <th onclick="rrs('team')">Team</th>
+  <th onclick="rrs('pos')">Pos</th>
+  <th onclick="rrs('posRank')">PosRk</th>
+  <th onclick="rrs('adp')">ADP</th>
+  <th onclick="rrs('score')">UD Score</th>
+  <th onclick="rrs('eg')">E[Games]</th>
+</tr></thead>
+<tbody id="tb0"></tbody></table>
+</div>
+</div>
+<!-- VIEW 1: ODDS TOOL -->
+<div id="v1" style="display:none">
 <div class="ctl">
   <input id="q1" placeholder="Search team…" oninput="rt()">
   <select id="gf1" onchange="rt()">
@@ -108,61 +154,206 @@ tr:hover td{background:#2a2a2a}
 <p class="note">Group stage opponents are confirmed from the official FIFA schedule. Knockout opponents are <em>projected scenarios</em> based on expected group finishes — actual paths depend on results.</p>
 <div class="grid" id="grid2"></div>
 </div>
+
+<!-- VIEW 3: STACK PAIRS -->
+<div id="v3" style="display:none">
+<p class="note">Earliest possible clash for each top-9 pairing. Assumes all 9 teams win their groups. Based on official FIFA 2026 R32 match schedule M73–M88.</p>
+<div class="tbl-wrap">
+<table class="sp-tbl"><thead><tr>
+  <th class="col-lbl"></th>
+  <th>Spain<br><span class="sp-sub">H</span></th>
+  <th>England<br><span class="sp-sub">L</span></th>
+  <th>France<br><span class="sp-sub">I</span></th>
+  <th>Argentina<br><span class="sp-sub">J</span></th>
+  <th>Brazil<br><span class="sp-sub">C</span></th>
+  <th>Portugal<br><span class="sp-sub">K</span></th>
+  <th>Germany<br><span class="sp-sub">E</span></th>
+  <th>Belgium<br><span class="sp-sub">G</span></th>
+  <th>Netherlands<br><span class="sp-sub">F</span></th>
+</tr></thead><tbody>
+<tr><td class="row-lbl">Spain</td><td class="sp-diag">—</td><td class="sp-fin">Final</td><td class="sp-sf">SF</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-sf">SF</td><td class="sp-qf">QF</td><td class="sp-sf">SF</td></tr>
+<tr><td class="row-lbl">England</td><td class="sp-fin">Final</td><td class="sp-diag">—</td><td class="sp-fin">Final</td><td class="sp-sf">SF</td><td class="sp-qf">QF</td><td class="sp-sf">SF</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td></tr>
+<tr><td class="row-lbl">France</td><td class="sp-sf">SF</td><td class="sp-fin">Final</td><td class="sp-diag">—</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-r16">R16</td><td class="sp-sf">SF</td><td class="sp-qf">QF</td></tr>
+<tr><td class="row-lbl">Argentina</td><td class="sp-fin">Final</td><td class="sp-sf">SF</td><td class="sp-fin">Final</td><td class="sp-diag">—</td><td class="sp-sf">SF</td><td class="sp-qf">QF</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td></tr>
+<tr><td class="row-lbl">Brazil</td><td class="sp-fin">Final</td><td class="sp-qf">QF</td><td class="sp-fin">Final</td><td class="sp-sf">SF</td><td class="sp-diag">—</td><td class="sp-sf">SF</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td></tr>
+<tr><td class="row-lbl">Portugal</td><td class="sp-fin">Final</td><td class="sp-sf">SF</td><td class="sp-fin">Final</td><td class="sp-qf">QF</td><td class="sp-sf">SF</td><td class="sp-diag">—</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td></tr>
+<tr><td class="row-lbl">Germany</td><td class="sp-sf">SF</td><td class="sp-fin">Final</td><td class="sp-r16">R16</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-diag">—</td><td class="sp-sf">SF</td><td class="sp-qf">QF</td></tr>
+<tr><td class="row-lbl">Belgium</td><td class="sp-qf">QF</td><td class="sp-fin">Final</td><td class="sp-sf">SF</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-sf">SF</td><td class="sp-diag">—</td><td class="sp-sf">SF</td></tr>
+<tr><td class="row-lbl">Netherlands</td><td class="sp-sf">SF</td><td class="sp-fin">Final</td><td class="sp-qf">QF</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-fin">Final</td><td class="sp-qf">QF</td><td class="sp-sf">SF</td><td class="sp-diag">—</td></tr>
+</tbody></table>
+</div>
+<div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;font-size:11px">
+  <span><span style="display:inline-block;width:10px;height:10px;background:#f7c1c133;border:1px solid #ef4444;border-radius:2px;margin-right:4px"></span>R16 — clash in Round of 16</span>
+  <span><span style="display:inline-block;width:10px;height:10px;background:#d9770633;border-radius:2px;margin-right:4px"></span>QF — clash in quarterfinal</span>
+  <span><span style="display:inline-block;width:10px;height:10px;background:#1d1d1d;border:1px solid #444;border-radius:2px;margin-right:4px"></span>SF — clash in semifinal</span>
+  <span><span style="display:inline-block;width:10px;height:10px;background:#1d9e7522;border-radius:2px;margin-right:4px"></span>Final only — safest pair</span>
+</div>
+</div>
 </div>
 
 <script>
 const GC={A:'#3266ad',B:'#d85a30',C:'#1d9e75',D:'#ba7517',E:'#993556',F:'#534ab7',G:'#0f6e56',H:'#a32d2d',I:'#185fa5',J:'#3b6d11',K:'#854f0b',L:'#633806'};
+const PCOLOR={FW:'#f97316',MD:'#3b82f6',D:'#22c55e',G:'#a78bfa'};
+const TEAM_GRP={'Spain':'H','France':'I','England':'L','Brazil':'C','Argentina':'J','Portugal':'K','Germany':'E','Belgium':'G','Netherlands':'F','Norway':'I','Colombia':'K','Morocco':'C','Japan':'F','USA':'D','Uruguay':'H','Mexico':'A','Switzerland':'B','Croatia':'L','Ecuador':'E','Türkiye':'D','Sweden':'F','Senegal':'I','Paraguay':'D','Austria':'J','Canada':'B','Scotland':'C','Czechia':'A','Bosnia':'B','Ivory Coast':'E','Egypt':'G','Algeria':'J','South Korea':'A','Ghana':'L','Iran':'G','Australia':'D','Tunisia':'F','DR Congo':'K','South Africa':'A','Saudi Arabia':'H','Qatar':'B','New Zealand':'G','Uzbekistan':'K','Panama':'L','Iraq':'I','Cape Verde':'H','Jordan':'J','Curaçao':'E','Haiti':'C'};
+
+// PLAYERS: [name, team, rank, adp, pos, posRank, score]
+const PLAYERS=[
+  ["Kylian Mbappe", "France", 1, 1.1, "FW", 1, 82.72],
+  ["Harry Kane", "England", 2, 2.7, "FW", 2, 81.63],
+  ["Michael Olise", "France", 3, 5.5, "FW", 3, 80.04],
+  ["Ousmane Dembele", "France", 4, 6.7, "FW", 4, 81.97],
+  ["Lamine Yamal", "Spain", 5, 2.6, "FW", 5, 73.83],
+  ["Mikel Oyarzabal", "Spain", 6, 7.4, "FW", 6, 74.01],
+  ["Lionel Messi", "Argentina", 7, 4.4, "FW", 7, 73.9],
+  ["Nico Williams Arthuer", "Spain", 8, 10.4, "FW", 8, 64.04],
+  ["Raphinha", "Brazil", 9, 9.1, "FW", 9, 79.62],
+  ["Vinicius Junior", "Brazil", 10, 10.0, "FW", 10, 78.27],
+  ["Julian Alvarez", "Argentina", 11, 13.4, "FW", 11, 63.02],
+  ["Unai Simon", "Spain", 12, 15.3, "G", 1, 54.46],
+  ["Mike Maignan", "France", 13, 12.9, "G", 2, 43.68],
+  ["Bukayo Saka", "England", 14, 18.5, "FW", 12, 61.03],
+  ["Pedri", "Spain", 15, 18.0, "MD", 1, 59.92],
+  ["Jude Bellingham", "England", 16, 14.9, "MD", 2, 58.73],
+  ["Rodri", "Spain", 17, 27.3, "MD", 3, 59.96],
+  ["Pedro Porro", "Spain", 18, 24.1, "D", 1, 62.82],
+  ["Jordan Pickford", "England", 19, 21.5, "G", 3, 37.43],
+  ["Emiliano Martinez", "Argentina", 20, 25.4, "G", 4, 42.06],
+  ["Florian Wirtz", "Germany", 21, 22.0, "MD", 4, 61.13],
+  ["Bruno Fernandes", "Portugal", 22, 12.1, "MD", 5, 65.31],
+  ["Declan Rice", "England", 23, 33.6, "MD", 6, 57.67],
+  ["Lautaro Javier Martinez", "Argentina", 24, 24.5, "FW", 13, 59.75],
+  ["Erling Haaland", "Norway", 25, 15.0, "FW", 14, 59.87],
+  ["Kai Havertz", "Germany", 26, 32.3, "FW", 15, 56.52],
+  ["Desire Doue", "France", 27, 37.6, "FW", 16, 44.7],
+  ["Cristiano Ronaldo", "Portugal", 28, 17.9, "FW", 17, 51.82],
+  ["Nuno Mendes", "Portugal", 29, 25.6, "D", 2, 57.44],
+  ["Alisson", "Brazil", 30, 29.9, "G", 5, 34.94],
+  ["Jamal Musiala", "Germany", 31, 30.6, "MD", 7, 55.61],
+  ["Kevin De Bruyne", "Belgium", 32, 30.3, "MD", 8, 52.58],
+  ["Jules Kounde", "France", 33, 27.2, "D", 3, 51.98],
+  ["Rayan Cherki", "France", 34, 34.8, "MD", 9, 39.81],
+  ["Diogo Costa", "Portugal", 35, 33.9, "G", 6, 44.59],
+  ["Marc Cucurella", "Spain", 36, 33.9, "D", 4, 51.73],
+  ["Theo Hernandez", "France", 37, 45.4, "D", 5, 50.77],
+  ["Joshua Kimmich", "Germany", 38, 49.3, "D", 6, 53.7],
+  ["David Raum", "Germany", 39, 47.8, "D", 7, 51.09],
+  ["Oliver Baumann", "Germany", 40, 41.7, "G", 7, 47.08],
+  ["Reece James", "England", 41, 33.3, "D", 8, 58.9],
+  ["Cody Gakpo", "Netherlands", 42, 41.5, "FW", 18, 54.67],
+  ["Joao Pedro", "Brazil", 43, 50.4, "FW", 19, 52.6],
+  ["Jeremy Doku", "Belgium", 44, 54.5, "FW", 20, 54.31],
+  ["Memphis Depay", "Netherlands", 45, 52.3, "FW", 21, 48.46],
+  ["Bruno Guimaraes", "Brazil", 46, 44.0, "MD", 10, 52.21],
+  ["William Saliba", "France", 47, 56.3, "D", 9, 47.05],
+  ["Cole Palmer", "England", 48, 50.1, "MD", 11, 51.72],
+  ["Enzo Fernandez", "Argentina", 49, 39.4, "MD", 12, 49.88],
+  ["Vitinha", "Portugal", 50, 49.1, "MD", 13, 49.71],
+  ["Elliot Anderson", "England", 51, 66.2, "MD", 14, 48.6],
+  ["Aurelien Tchouameni", "France", 52, 42.0, "MD", 15, 46.6],
+  ["Adrien Rabiot", "France", 53, 67.0, "MD", 16, 49.9],
+  ["Maxime De Cuyper", "Belgium", 54, 68.3, "D", 10, 54.34],
+  ["Pau Cubarsi", "Spain", 55, 54.2, "D", 11, 45.14],
+  ["Ferran Torres", "Spain", 56, 62.7, "FW", 22, 48.14],
+  ["Matheus Cunha", "Brazil", 57, 66.8, "FW", 23, 48.67],
+  ["Christian Pulisic", "USA", 58, 67.6, "FW", 24, 48.48],
+  ["Gabriel Magalhaes", "Brazil", 59, 47.6, "D", 12, 45.72],
+  ["Marquinhos", "Brazil", 60, 70.0, "D", 13, 46.04],
+  ["Alexis Mac Allister", "Argentina", 61, 68.8, "MD", 17, 48.13],
+  ["Marc Guehi", "England", 62, 63.6, "D", 14, 45.55],
+  ["Thibaut Courtois", "Belgium", 63, 59.7, "G", 8, 32.92],
+  ["Julian Ryerson", "Norway", 64, 71.4, "D", 15, 45.71],
+  ["Youri Tielemans", "Belgium", 65, 71.9, "MD", 18, 46.7],
+  ["Bart Verbruggen", "Netherlands", 66, 63.1, "G", 9, 28.71],
+  ["Rodrigo De Paul", "Argentina", 67, 58.0, "MD", 19, 45.24],
+  ["Casemiro", "Brazil", 68, 69.3, "MD", 20, 45.02],
+  ["Ruben Dias", "Portugal", 69, 71.0, "D", 16, 44.94],
+  ["Denzel Dumfries", "Netherlands", 70, 70.7, "D", 17, 44.9],
+  ["Bernardo Silva", "Portugal", 71, 64.8, "MD", 21, 43.99],
+  ["Dayot Upamecano", "France", 72, 70.5, "D", 18, 44.48],
+  ["Leandro Trossard", "Belgium", 73, 70.9, "MD", 22, 42.33],
+  ["Tijani Reijnders", "Netherlands", 74, 71.4, "MD", 23, 41.82],
+  ["Martin Odegaard", "Norway", 75, 69.3, "MD", 24, 41.97],
+  ["Joao Neves", "Portugal", 76, 70.7, "MD", 25, 43.74],
+  ["Cristian Romero", "Argentina", 77, 71.5, "D", 19, 44.45],
+  ["Nico Schlotterbeck", "Germany", 78, 70.2, "D", 20, 43.78],
+  ["Nahuel Molina", "Argentina", 79, 55.7, "D", 21, 40.17],
+  ["Nicolas Tagliafico", "Argentina", 80, 71.8, "D", 22, 43.72],
+  ["Leon Goretzka", "Germany", 81, 71.9, "MD", 26, 40.79],
+  ["Rafael Leao", "Portugal", 82, 64.0, "FW", 25, 44.46],
+  ["Goncalo Inacio", "Portugal", 83, 72.0, "D", 23, 43.41],
+  ["Alexander Sorloth", "Norway", 84, 71.3, "FW", 26, 47.18],
+  ["Folarin Balogun", "USA", 85, 71.8, "FW", 27, 41.97],
+  ["Pedro Neto", "Portugal", 86, 52.2, "FW", 28, 41.89],
+  ["Mohamed Salah", "Egypt", 87, 71.9, "FW", 29, 44.98],
+  ["Lisandro Martinez", "Argentina", 88, 71.5, "D", 24, 42.17],
+  ["Charles De Ketelaere", "Belgium", 89, 71.6, "FW", 30, 41.84],
+  ["Jonathan Tah", "Germany", 90, 71.2, "D", 25, 41.55],
+  ["Ezri Konsa", "England", 91, 68.8, "D", 26, 40.03],
+  ["Luis Diaz", "Colombia", 92, 67.7, "FW", 31, 50.63],
+  ["Kenan Yildiz", "Türkiye", 93, 71.6, "FW", 32, 48.42],
+  ["Alexis Vega", "Mexico", 94, 72.0, "FW", 33, 44.83],
+  ["Donyell Malen", "Netherlands", 95, 71.6, "FW", 34, 45.67],
+  ["Virgil Van Dijk", "Netherlands", 96, 67.7, "D", 27, 36.7],
+  ["Ivan Perisic", "Croatia", 97, 70.0, "FW", 35, 41.68],
+  ["Marcus Rashford", "England", 98, 70.0, "FW", 36, 42.79],
+  ["Raul Jimenez", "Mexico", 99, 71.6, "FW", 37, 45.03],
+  ["Son Heung-min", "South Korea", 100, 71.7, "FW", 38, 44.38],
+  ["Luis Suarez", "Colombia", 101, 71.9, "FW", 39, 42.25],
+  ["Arda Guler", "Türkiye", 102, 71.5, "MD", 27, 41.35],
+  ["Leroy Sane", "Germany", 103, 70.8, "MD", 28, 39.36],
+  ["Yan Diomande", "Ivory Coast", 104, 72.0, "FW", 40, 36.55],
+];
 
 // [name, group, pA, pR16, pQF, pSF, pFin, pWin]
 const T=[
-['Spain','H',.986,.783,.615,.500,.312,.1667],
-['France','I',.986,.773,.574,.435,.250,.1667],
-['England','L',.986,.773,.592,.417,.250,.1333],
-['Brazil','C',.986,.714,.545,.357,.217,.1111],
-['Argentina','J',.986,.714,.524,.345,.200,.1053],
-['Portugal','K',.986,.697,.500,.333,.167,.0833],
-['Germany','E',.986,.697,.435,.278,.154,.0667],
-['Belgium','G',.976,.556,.400,.167,.077,.0278],
-['Netherlands','F',.889,.583,.357,.182,.100,.0476],
-['Norway','I',.867,.556,.278,.154,.077,.0323],
-['Colombia','K',.867,.476,.263,.125,.053,.0244],
-['Switzerland','B',.917,.476,.267,.105,.053,.0123],
-['USA','D',.867,.444,.267,.105,.053,.0164],
-['Uruguay','H',.889,.444,.250,.133,.048,.0152],
-['Mexico','A',.889,.444,.222,.077,.038,.0132],
-['Morocco','C',.889,.444,.222,.091,.043,.0196],
-['Japan','F',.756,.444,.200,.083,.038,.0196],
-['Croatia','L',.818,.400,.200,.091,.034,.0123],
-['Ecuador','E',.938,.400,.154,.067,.028,.0110],
-['Türkiye','D',.737,.417,.250,.100,.038,.0099],
-['Austria','J',.818,.286,.125,.059,.024,.0066],
-['Canada','B',.846,.364,.182,.059,.024,.0050],
-['Sweden','F',.697,.286,.133,.067,.020,.0099],
-['Senegal','I',.697,.286,.133,.053,.024,.0090],
-['Paraguay','D',.722,.286,.111,.038,.015,.0066],
-['Scotland','C',.722,.286,.111,.034,.012,.0050],
-['Czechia','A',.677,.308,.118,.038,.012,.0040],
-['Bosnia','B',.714,.286,.105,.032,.012,.0040],
-['Ivory Coast','E',.857,.286,.091,.034,.012,.0040],
-['Egypt','G',.756,.308,.100,.032,.012,.0033],
-['Algeria','J',.756,.267,.111,.048,.015,.0028],
-['South Korea','A',.737,.267,.133,.034,.015,.0022],
-['Ghana','L',.623,.250,.077,.032,.012,.0033],
-['Iran','G',.688,.200,.091,.024,.010,.0020],
-['Australia','D',.417,.222,.059,.015,.010,.0020],
-['Tunisia','F',.444,.200,.048,.012,.005,.0020],
-['DR Congo','K',.500,.200,.059,.024,.007,.0014],
-['South Africa','A',.524,.200,.048,.010,.004,.0012],
-['Saudi Arabia','H',.556,.200,.043,.012,.004,.0010],
-['Qatar','B',.333,.167,.028,.007,.004,.0010],
-['New Zealand','G',.333,.143,.024,.004,.003,.0010],
-['Uzbekistan','K',.333,.077,.028,.010,.003,.0010],
-['Panama','L',.312,.125,.032,.010,.004,.0010],
-['Iraq','I',.185,.111,.015,.010,.002,.0010],
-['Cape Verde','H',.270,.077,.020,.004,.002,.0010],
-['Jordan','J',.172,.059,.020,.004,.002,.0005],
-['Curaçao','E',.062,.059,.007,.002,.002,.0005],
-['Haiti','C',.095,.034,.007,.002,.002,.0004],
+['Spain','H',.979,.733,.537,.412,.249,.14155],
+['France','I',.948,.724,.501,.358,.199,.14155],
+['England','L',.962,.724,.516,.343,.199,.11324],
+['Brazil','C',.954,.669,.476,.294,.173,.09437],
+['Argentina','J',.942,.669,.457,.284,.160,.08940],
+['Portugal','K',.953,.653,.436,.275,.133,.07078],
+['Germany','E',.943,.653,.379,.229,.123,.05662],
+['Belgium','G',.921,.521,.349,.137,.061,.02359],
+['Netherlands','F',.863,.547,.311,.150,.080,.04044],
+['Norway','I',.870,.521,.242,.127,.061,.02740],
+['Colombia','K',.884,.446,.229,.103,.042,.02072],
+['Morocco','C',.876,.417,.194,.075,.035,.01665],
+['Japan','F',.740,.417,.174,.069,.031,.01665],
+['USA','D',.817,.417,.233,.087,.042,.01392],
+['Uruguay','H',.899,.417,.218,.110,.038,.01287],
+['Mexico','A',.840,.417,.194,.063,.031,.01118],
+['Switzerland','B',.884,.446,.233,.087,.042,.01049],
+['Croatia','L',.810,.375,.174,.075,.028,.01049],
+['Ecuador','E',.857,.375,.134,.055,.022,.00933],
+['Türkiye','D',.741,.390,.218,.082,.031,.00841],
+['Sweden','F',.661,.268,.116,.055,.016,.00841],
+['Senegal','I',.674,.268,.116,.043,.019,.00765],
+['Paraguay','D',.623,.268,.097,.032,.012,.00562],
+['Austria','J',.793,.268,.109,.048,.019,.00562],
+['Canada','B',.823,.341,.159,.048,.019,.00423],
+['Scotland','C',.729,.268,.097,.028,.010,.00423],
+['Czechia','A',.698,.288,.103,.032,.010,.00338],
+['Bosnia','B',.659,.268,.092,.027,.010,.00338],
+['Ivory Coast','E',.794,.268,.079,.028,.010,.00338],
+['Egypt','G',.732,.288,.087,.027,.010,.00282],
+['Algeria','J',.720,.250,.097,.039,.012,.00242],
+['South Korea','A',.709,.250,.116,.028,.012,.00188],
+['Ghana','L',.591,.234,.067,.027,.010,.00282],
+['Iran','G',.698,.187,.079,.020,.008,.00170],
+['Australia','D',.485,.208,.051,.012,.008,.00170],
+['Tunisia','F',.402,.187,.042,.010,.004,.00170],
+['DR Congo','K',.530,.187,.051,.020,.005,.00121],
+['South Africa','A',.420,.187,.042,.008,.003,.00106],
+['Saudi Arabia','H',.494,.187,.038,.010,.003,.00085],
+['Qatar','B',.301,.156,.024,.005,.003,.00085],
+['New Zealand','G',.316,.134,.021,.003,.003,.00085],
+['Uzbekistan','K',.299,.072,.024,.008,.003,.00085],
+['Panama','L',.304,.117,.028,.008,.003,.00085],
+['Iraq','I',.176,.104,.013,.008,.002,.00085],
+['Cape Verde','H',.295,.072,.017,.003,.002,.00085],
+['Jordan','J',.212,.055,.017,.003,.002,.00042],
+['Curaçao','E',.073,.055,.006,.002,.002,.00042],
+['Haiti','C',.107,.032,.006,.002,.002,.00034],
 ];
 T.forEach(t=>{t[8]=+(3+t[2]+t[3]+t[4]+t[5]+t[6]).toFixed(3);});
 const TM={};T.forEach(t=>TM[t[0]]=t);
@@ -277,6 +468,7 @@ const PROBS={R32:2,R16:3,QF:4,SF:5,Final:6};
 function pct(v){return v>=.01?(v*100).toFixed(1)+'%':(v*100).toFixed(2)+'%';}
 
 // ── TABLE VIEW ──
+const FLAGS={'Spain':'🇪🇸','France':'🇫🇷','England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Brazil':'🇧🇷','Argentina':'🇦🇷','Portugal':'🇵🇹','Germany':'🇩🇪','Belgium':'🇧🇪','Netherlands':'🇳🇱','Norway':'🇳🇴','Colombia':'🇨🇴','Switzerland':'🇨🇭','USA':'🇺🇸','Uruguay':'🇺🇾','Mexico':'🇲🇽','Morocco':'🇲🇦','Japan':'🇯🇵','Croatia':'🇭🇷','Ecuador':'🇪🇨','Türkiye':'🇹🇷','Austria':'🇦🇹','Canada':'🇨🇦','Sweden':'🇸🇪','Senegal':'🇸🇳','Paraguay':'🇵🇾','Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Czechia':'🇨🇿','Bosnia':'🇧🇦','Ivory Coast':'🇨🇮','Egypt':'🇪🇬','Algeria':'🇩🇿','South Korea':'🇰🇷','Ghana':'🇬🇭','Iran':'🇮🇷','Australia':'🇦🇺','Tunisia':'🇹🇳','DR Congo':'🇨🇩','South Africa':'🇿🇦','Saudi Arabia':'🇸🇦','Qatar':'🇶🇦','New Zealand':'🇳🇿','Uzbekistan':'🇺🇿','Panama':'🇵🇦','Iraq':'🇮🇶','Cape Verde':'🇨🇻','Jordan':'🇯🇴','Curaçao':'🇨🇼','Haiti':'🇭🇹'};
 let sk='pW',sd=1;
 function s(k){sk===k?sd*=-1:(sk=k,sd=k==='name'||k==='g'?1:1);rt();}
 function rt(){
@@ -291,10 +483,11 @@ function rt(){
   const mx=Math.max(...T.map(t=>t[8]));
   document.getElementById('tb1').innerHTML=rows.map(t=>{
     const gc=GC[t[1]];const ew=Math.round((t[8]/mx)*100);
+    const flag=FLAGS[t[0]]||'';
     return`<tr>
-      <td class="lft"><span class="gc" style="background:${gc}">${t[1]}</span>${t[0]}</td>
+      <td class="lft"><span style="font-size:16px;margin-right:6px;line-height:1">${flag}</span>${t[0]}</td>
       <td>${(t[7]*100).toFixed(2)}%</td>
-      <td>${t[1]}</td>
+      <td><span class="gc" style="background:${gc}">${t[1]}</span></td>
       <td><div class="bar-wrap"><div class="bar"><div class="bf" style="width:${Math.round(t[2]*100)}%;background:${gc}"></div></div><span>${(t[2]*100).toFixed(1)}%</span></div></td>
       <td>${(t[3]*100).toFixed(1)}%</td>
       <td>${(t[4]*100).toFixed(1)}%</td>
@@ -349,14 +542,62 @@ function rs(){
   }).join('');
 }
 
+// ── RANKINGS VIEW ──
+let rsk='rank', rsd=1;
+function rrs(k){rsk===k?rsd*=-1:(rsk=k,rsd=k==='name'||k==='team'||k==='pos'?1:1);rr();}
+function rr(){
+  const q=document.getElementById('q0').value.toLowerCase();
+  const pf=document.getElementById('pos0').value;
+  const tm=document.getElementById('tm0').value;
+  const ki={name:0,team:1,rank:2,adp:3,pos:4,posRank:5,score:6,eg:7};
+  let rows=PLAYERS.filter(p=>
+    (!q||p[0].toLowerCase().includes(q)||p[1].toLowerCase().includes(q))&&
+    (!pf||p[4]===pf)&&
+    (!tm||p[1]===tm)
+  );
+  rows.sort((a,b)=>{
+    if(rsk==='eg'){const av=T.find(t=>t[0]===a[1])?.[8]||0;const bv=T.find(t=>t[0]===b[1])?.[8]||0;return(bv-av)*rsd;}
+    const av=a[ki[rsk]], bv=b[ki[rsk]];
+    return typeof av==='string'?av.localeCompare(bv)*rsd:(bv-av)*rsd;
+  });
+  if(rsk==='rank'||rsk==='adp'||rsk==='posRank') rows.sort((a,b)=>(a[ki[rsk]]-b[ki[rsk]])*rsd);
+  const maxScore=Math.max(...PLAYERS.map(p=>p[6]));
+  const FLAGS={'Spain':'🇪🇸','France':'🇫🇷','England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Brazil':'🇧🇷','Argentina':'🇦🇷','Portugal':'🇵🇹','Germany':'🇩🇪','Belgium':'🇧🇪','Netherlands':'🇳🇱','Norway':'🇳🇴','Colombia':'🇨🇴','Switzerland':'🇨🇭','USA':'🇺🇸','Uruguay':'🇺🇾','Mexico':'🇲🇽','Morocco':'🇲🇦','Japan':'🇯🇵','Croatia':'🇭🇷','Ecuador':'🇪🇨','Türkiye':'🇹🇷','Austria':'🇦🇹','Canada':'🇨🇦','Egypt':'🇪🇬','South Korea':'🇰🇷','Ivory Coast':'🇨🇮'};
+  document.getElementById('tb0').innerHTML=rows.map(p=>{
+    const gc=GC[TEAM_GRP[p[1]]]||'#555';
+    const pc=PCOLOR[p[4]]||'#888';
+    const sw=Math.round((p[6]/maxScore)*100);
+    const flag=FLAGS[p[1]]||'';
+    return`<tr>
+      <td class="lft"><strong>${p[2]}</strong></td>
+      <td class="lft">${p[0]}</td>
+      <td class="lft"><span style="font-size:14px;margin-right:4px">${flag}</span><span class="gc" style="background:${gc}">${TEAM_GRP[p[1]]||'?'}</span>${p[1]}</td>
+      <td style="color:${pc};font-weight:500">${p[4]}</td>
+      <td style="color:${pc}">${p[4]}${p[5]}</td>
+      <td>${p[3]}</td>
+      <td><div style="display:flex;align-items:center;gap:5px"><div class="bar"><div class="bf" style="width:${sw}%;background:${pc}"></div></div><span>${p[6]}</span></div></td>
+      <td style="color:#999;font-size:12px">${(T.find(t=>t[0]===p[1])?.[8]||0).toFixed(2)}</td>
+    </tr>`;
+  }).join('');
+  document.querySelectorAll('#v0 th').forEach(th=>{th.className=th.className.replace(/ ?s[ad]/g,'').trim()||'';const c=th.getAttribute('onclick')?.match(/rrs\('(\w+)'\)/)?.[1];if(c===rsk)th.className+=(rsd===1?' sa':' sd');});
+}
+
 // ── VIEW TOGGLE ──
 function sv(n){
-  document.getElementById('v1').style.display=n===1?'':'none';
-  document.getElementById('v2').style.display=n===2?'':'none';
-  document.getElementById('vb1').className='vb'+(n===1?' on':'');
-  document.getElementById('vb2').className='vb'+(n===2?' on':'');
+  [0,1,2,3].forEach(i=>{
+    document.getElementById('v'+i).style.display=n===i?'':'none';
+    document.getElementById('vb'+i).className='vb'+(n===i?' on':'');
+  });
+  if(n===0)rr();
   if(n===2)rs();
 }
+
+// Populate team dropdown for rankings
+(function(){
+  const teams=[...new Set(PLAYERS.map(p=>p[1]))].sort();
+  const sel=document.getElementById('tm0');
+  teams.forEach(t=>{const o=document.createElement('option');o.value=t;o.text=t;sel.appendChild(o);});
+})();
 
 // ── CSV DOWNLOAD ──
 function dl(){
@@ -368,4 +609,5 @@ function dl(){
 }
 
 rt();
+rr();
 </script>

@@ -1,0 +1,371 @@
+<style>
+*{box-sizing:border-box}
+body{background:#111;color:#e5e5e5;margin:0;padding:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.vt{display:flex;gap:6px;margin-bottom:.75rem}
+.vb{height:30px;padding:0 16px;font-size:12px;font-weight:500;border:1px solid rgba(255,255,255,0.18);border-radius:6px;background:#1e1e1e;color:#999;cursor:pointer}
+.vb.on{background:#e5e5e5;color:#111;border-color:#e5e5e5}
+.wrap{padding:.5rem 0}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:.75rem;align-items:center}
+.ctl input,.ctl select{height:30px;font-size:12px;padding:0 8px;border:1px solid rgba(255,255,255,0.18);border-radius:6px;background:#1e1e1e;color:#e5e5e5}
+.ctl input{width:150px}
+.dl{height:30px;padding:0 12px;font-size:12px;border:1px solid rgba(255,255,255,0.18);border-radius:6px;background:#1e1e1e;color:#e5e5e5;cursor:pointer}
+.dl:hover{background:#2a2a2a}
+/* TABLE VIEW */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:5px 8px;text-align:right;font-weight:500;color:#999;border-bottom:1px solid rgba(255,255,255,0.08);cursor:pointer;white-space:nowrap;user-select:none}
+th.lft{text-align:left}
+th:hover{color:#e5e5e5}
+th.sa::after{content:" ↑"}
+th.sd::after{content:" ↓"}
+td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.08);color:#e5e5e5;text-align:right;white-space:nowrap}
+td.lft{text-align:left}
+tr:hover td{background:#2a2a2a}
+.gc{display:inline-block;width:20px;height:20px;border-radius:4px;text-align:center;line-height:20px;font-size:10px;font-weight:500;color:#fff;margin-right:4px}
+.bar-wrap{display:flex;align-items:center;gap:5px}
+.bar{height:5px;border-radius:2px;background:rgba(255,255,255,0.18);width:50px}
+.bf{height:100%;border-radius:2px}
+.eg{font-weight:500}
+/* SCHEDULE VIEW */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#1e1e1e}
+.card.dim{opacity:.6}
+.ch{padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
+.ch-l{display:flex;flex-direction:column;gap:1px}
+.ch-name{font-size:13px;font-weight:500;color:#fff}
+.ch-sub{font-size:10px;color:rgba(255,255,255,.7)}
+.ch-r{font-size:12px;font-weight:500;color:rgba(255,255,255,.9)}
+.srow{display:grid;grid-template-columns:58px 1fr;border-bottom:1px solid rgba(255,255,255,0.08)}
+.srow:last-child{border-bottom:none}
+.sl{padding:5px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border-right:1px solid rgba(255,255,255,0.08)}
+.sl-s{font-size:10px;font-weight:500}
+.sl-m{font-size:9px;color:#999}
+.sl-p{font-size:10px;font-weight:500;margin-top:1px}
+.ri{padding:5px 9px;display:flex;flex-direction:column;justify-content:center;gap:1px}
+.ri-o{font-size:12px;font-weight:500;color:#e5e5e5}
+.ri-s{font-size:10px;color:#999}
+.ri-o.warn{color:#ef4444}
+.ri-o.muted{color:#999}
+.gs .sl{background:#2a2a2a}.gs .sl-s{color:#999}.gs .sl-m{color:#999}
+.r32 .sl-s{color:#888}.r32 .sl-p{color:#888}
+.r16 .sl-s{color:#3b82f6}.r16 .sl-p{color:#3b82f6}
+.r16w .sl-s{color:#ef4444}.r16w .sl-p{color:#ef4444}
+.qf .sl-s{color:#d97706}.qf .sl-p{color:#d97706}
+.sf .sl-s{color:#a78bfa}.sf .sl-p{color:#a78bfa}
+.fin .sl-s{color:#34d399}.fin .sl-p{color:#34d399}
+.exit .sl-s,.exit .sl-p,.exit .sl-m{color:#555}
+.note{font-size:11px;color:#666;margin:0 0 .75rem;font-style:italic}
+.proj-divider{font-size:10px;color:#555;padding:4px 10px;background:#181818;border-bottom:1px solid rgba(255,255,255,0.08);font-style:italic;letter-spacing:.02em}
+</style>
+<h2 class="sr-only">World Cup 2026 stage probabilities and team schedules for all 48 teams</h2>
+<div class="wrap">
+<div class="vt">
+  <button class="vb on" id="vb1" onclick="sv(1)">Table view</button>
+  <button class="vb" id="vb2" onclick="sv(2)">Schedule view</button>
+</div>
+
+<!-- VIEW 1: TABLE -->
+<div id="v1">
+<div class="ctl">
+  <input id="q1" placeholder="Search team…" oninput="rt()">
+  <select id="gf1" onchange="rt()">
+    <option value="">All groups</option>
+    <option>A</option><option>B</option><option>C</option><option>D</option>
+    <option>E</option><option>F</option><option>G</option><option>H</option>
+    <option>I</option><option>J</option><option>K</option><option>L</option>
+  </select>
+  <button class="dl" onclick="dl()">Download CSV ↓</button>
+</div>
+<p class="note">Probabilities derived from current betting markets. Stage advancement reflects expected paths — actual opponents depend on group results.</p>
+<div class="tbl-wrap">
+<table><thead><tr>
+  <th class="lft" onclick="s('name')">Team</th>
+  <th onclick="s('g')">Grp</th>
+  <th onclick="s('pA')">P(Advance)</th>
+  <th onclick="s('pR')">P(R16)</th>
+  <th onclick="s('pQ')">P(QF)</th>
+  <th onclick="s('pS')">P(SF)</th>
+  <th onclick="s('pF')">P(Final)</th>
+  <th onclick="s('pW')">P(Win)</th>
+  <th onclick="s('eg')">E[Games]</th>
+</tr></thead>
+<tbody id="tb1"></tbody></table>
+</div>
+</div>
+
+<!-- VIEW 2: SCHEDULE CARDS -->
+<div id="v2" style="display:none">
+<div class="ctl">
+  <input id="q2" placeholder="Search team…" oninput="rs()">
+  <select id="gf2" onchange="rs()">
+    <option value="">All groups</option>
+    <option>A</option><option>B</option><option>C</option><option>D</option>
+    <option>E</option><option>F</option><option>G</option><option>H</option>
+    <option>I</option><option>J</option><option>K</option><option>L</option>
+  </select>
+</div>
+<p class="note">Group stage opponents are confirmed from the official FIFA schedule. Knockout opponents are <em>projected scenarios</em> based on expected group finishes — actual paths depend on results.</p>
+<div class="grid" id="grid2"></div>
+</div>
+</div>
+
+<script>
+const GC={A:'#3266ad',B:'#d85a30',C:'#1d9e75',D:'#ba7517',E:'#993556',F:'#534ab7',G:'#0f6e56',H:'#a32d2d',I:'#185fa5',J:'#3b6d11',K:'#854f0b',L:'#633806'};
+
+// [name, group, pA, pR16, pQF, pSF, pFin, pWin]
+const T=[
+['Spain','H',.986,.783,.615,.500,.312,.1667],
+['France','I',.986,.773,.574,.435,.250,.1667],
+['England','L',.986,.773,.592,.417,.250,.1333],
+['Brazil','C',.986,.714,.545,.357,.217,.1111],
+['Argentina','J',.986,.714,.524,.345,.200,.1053],
+['Portugal','K',.986,.697,.500,.333,.167,.0833],
+['Germany','E',.986,.697,.435,.278,.154,.0667],
+['Belgium','G',.976,.556,.400,.167,.077,.0278],
+['Netherlands','F',.889,.583,.357,.182,.100,.0476],
+['Norway','I',.867,.556,.278,.154,.077,.0323],
+['Colombia','K',.867,.476,.263,.125,.053,.0244],
+['Switzerland','B',.917,.476,.267,.105,.053,.0123],
+['USA','D',.867,.444,.267,.105,.053,.0164],
+['Uruguay','H',.889,.444,.250,.133,.048,.0152],
+['Mexico','A',.889,.444,.222,.077,.038,.0132],
+['Morocco','C',.889,.444,.222,.091,.043,.0196],
+['Japan','F',.756,.444,.200,.083,.038,.0196],
+['Croatia','L',.818,.400,.200,.091,.034,.0123],
+['Ecuador','E',.938,.400,.154,.067,.028,.0110],
+['Türkiye','D',.737,.417,.250,.100,.038,.0099],
+['Austria','J',.818,.286,.125,.059,.024,.0066],
+['Canada','B',.846,.364,.182,.059,.024,.0050],
+['Sweden','F',.697,.286,.133,.067,.020,.0099],
+['Senegal','I',.697,.286,.133,.053,.024,.0090],
+['Paraguay','D',.722,.286,.111,.038,.015,.0066],
+['Scotland','C',.722,.286,.111,.034,.012,.0050],
+['Czechia','A',.677,.308,.118,.038,.012,.0040],
+['Bosnia','B',.714,.286,.105,.032,.012,.0040],
+['Ivory Coast','E',.857,.286,.091,.034,.012,.0040],
+['Egypt','G',.756,.308,.100,.032,.012,.0033],
+['Algeria','J',.756,.267,.111,.048,.015,.0028],
+['South Korea','A',.737,.267,.133,.034,.015,.0022],
+['Ghana','L',.623,.250,.077,.032,.012,.0033],
+['Iran','G',.688,.200,.091,.024,.010,.0020],
+['Australia','D',.417,.222,.059,.015,.010,.0020],
+['Tunisia','F',.444,.200,.048,.012,.005,.0020],
+['DR Congo','K',.500,.200,.059,.024,.007,.0014],
+['South Africa','A',.524,.200,.048,.010,.004,.0012],
+['Saudi Arabia','H',.556,.200,.043,.012,.004,.0010],
+['Qatar','B',.333,.167,.028,.007,.004,.0010],
+['New Zealand','G',.333,.143,.024,.004,.003,.0010],
+['Uzbekistan','K',.333,.077,.028,.010,.003,.0010],
+['Panama','L',.312,.125,.032,.010,.004,.0010],
+['Iraq','I',.185,.111,.015,.010,.002,.0010],
+['Cape Verde','H',.270,.077,.020,.004,.002,.0010],
+['Jordan','J',.172,.059,.020,.004,.002,.0005],
+['Curaçao','E',.062,.059,.007,.002,.002,.0005],
+['Haiti','C',.095,.034,.007,.002,.002,.0004],
+];
+T.forEach(t=>{t[8]=+(3+t[2]+t[3]+t[4]+t[5]+t[6]).toFixed(3);});
+const TM={};T.forEach(t=>TM[t[0]]=t);
+
+// Group stage schedule: [matchNum, opponent]
+const GS={
+  "Mexico":[["M1","South Africa"],["M28","South Korea"],["M53","Czechia"]],
+  "South Africa":[["M1","Mexico"],["M25","Czechia"],["M54","South Korea"]],
+  "South Korea":[["M2","Czechia"],["M28","Mexico"],["M54","South Africa"]],
+  "Czechia":[["M2","South Korea"],["M25","South Africa"],["M53","Mexico"]],
+  "Switzerland":[["M8","Qatar"],["M26","Bosnia"],["M51","Canada"]],
+  "Canada":[["M3","Bosnia"],["M27","Qatar"],["M51","Switzerland"]],
+  "Bosnia":[["M3","Canada"],["M26","Switzerland"],["M52","Qatar"]],
+  "Qatar":[["M8","Switzerland"],["M27","Canada"],["M52","Bosnia"]],
+  "Brazil":[["M7","Morocco"],["M29","Haiti"],["M49","Scotland"]],
+  "Morocco":[["M7","Brazil"],["M30","Scotland"],["M50","Haiti"]],
+  "Haiti":[["M5","Scotland"],["M29","Brazil"],["M50","Morocco"]],
+  "Scotland":[["M5","Haiti"],["M30","Morocco"],["M49","Brazil"]],
+  "USA":[["M4","Paraguay"],["M32","Australia"],["M59","Türkiye"]],
+  "Türkiye":[["M6","Australia"],["M31","Paraguay"],["M59","USA"]],
+  "Paraguay":[["M4","USA"],["M31","Türkiye"],["M60","Australia"]],
+  "Australia":[["M6","Türkiye"],["M32","USA"],["M60","Paraguay"]],
+  "Germany":[["M10","Curaçao"],["M33","Ivory Coast"],["M56","Ecuador"]],
+  "Ecuador":[["M9","Ivory Coast"],["M34","Curaçao"],["M56","Germany"]],
+  "Ivory Coast":[["M9","Ecuador"],["M33","Germany"],["M55","Curaçao"]],
+  "Curaçao":[["M10","Germany"],["M34","Ecuador"],["M55","Ivory Coast"]],
+  "Netherlands":[["M11","Japan"],["M35","Sweden"],["M58","Tunisia"]],
+  "Japan":[["M11","Netherlands"],["M36","Tunisia"],["M57","Sweden"]],
+  "Sweden":[["M12","Tunisia"],["M35","Netherlands"],["M57","Japan"]],
+  "Tunisia":[["M12","Sweden"],["M36","Japan"],["M58","Netherlands"]],
+  "Belgium":[["M16","Egypt"],["M39","Iran"],["M64","New Zealand"]],
+  "Egypt":[["M16","Belgium"],["M40","New Zealand"],["M63","Iran"]],
+  "Iran":[["M15","New Zealand"],["M39","Belgium"],["M63","Egypt"]],
+  "New Zealand":[["M15","Iran"],["M40","Egypt"],["M64","Belgium"]],
+  "Spain":[["M14","Cape Verde"],["M38","Saudi Arabia"],["M66","Uruguay"]],
+  "Uruguay":[["M13","Saudi Arabia"],["M37","Cape Verde"],["M66","Spain"]],
+  "Saudi Arabia":[["M13","Uruguay"],["M38","Spain"],["M65","Cape Verde"]],
+  "Cape Verde":[["M14","Spain"],["M37","Uruguay"],["M65","Saudi Arabia"]],
+  "France":[["M17","Senegal"],["M42","Iraq"],["M61","Norway"]],
+  "Norway":[["M18","Iraq"],["M41","Senegal"],["M61","France"]],
+  "Senegal":[["M17","France"],["M41","Norway"],["M62","Iraq"]],
+  "Iraq":[["M18","Norway"],["M42","France"],["M62","Senegal"]],
+  "Argentina":[["M19","Algeria"],["M43","Austria"],["M70","Jordan"]],
+  "Austria":[["M20","Jordan"],["M43","Argentina"],["M69","Algeria"]],
+  "Algeria":[["M19","Argentina"],["M44","Jordan"],["M69","Austria"]],
+  "Jordan":[["M20","Austria"],["M44","Algeria"],["M70","Argentina"]],
+  "Portugal":[["M23","DR Congo"],["M47","Uzbekistan"],["M71","Colombia"]],
+  "Colombia":[["M24","Uzbekistan"],["M48","DR Congo"],["M71","Portugal"]],
+  "DR Congo":[["M23","Portugal"],["M48","Colombia"],["M72","Uzbekistan"]],
+  "Uzbekistan":[["M24","Colombia"],["M47","Portugal"],["M72","DR Congo"]],
+  "England":[["M22","Croatia"],["M45","Ghana"],["M67","Panama"]],
+  "Croatia":[["M22","England"],["M46","Panama"],["M68","Ghana"]],
+  "Ghana":[["M21","Panama"],["M45","England"],["M68","Croatia"]],
+  "Panama":[["M21","Ghana"],["M46","Croatia"],["M67","England"]],
+};
+
+// Knockout paths: [stage_class, stage_label, matchNum, opp_text, sub_text, locked]
+// prob taken from T array at render time
+// eliminated teams get exit rows
+const KO={
+  "Mexico":    [["r32","R32","M79","Best 3rd (C/E/F/H/I)","e.g. Saudi Arabia, Senegal",0],["r16","R16","M92","England","Group L winner",0],["qf","QF","M99","Brazil","Winner M91",0],["sf","SF","M102","Argentina or Portugal","Winner QF M100",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "South Korea":[["r32","R32","M73","Canada (2B)","Group B runner-up",0],["r16","R16","M90","Netherlands","Winner M75",0],["qf","QF","M97","Germany or France","Winner M89",0],["sf","SF","M101","Spain / Belgium / USA","Winner QF M98",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Czechia":   [["r32","R32","M82","Belgium (1G)","3AEHIJ slot",0],["r16","R16","M94","USA","Winner M81",0],["qf","QF","M98","Spain","Winner M93",0],["sf","SF","M101","Germany / France / Netherlands","Winner QF M97",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "South Africa":[["exit","GS","—","Expected group stage exit","Proj. 4th in Group A",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "Switzerland":[["r32","R32","M85","Best 3rd (E/F/G/I/J)","e.g. Sweden",0],["r16","R16","M96","Portugal","Winner M87",0],["qf","QF","M100","Argentina","Winner M95",0],["sf","SF","M102","Brazil or England","Winner QF M99",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Canada":    [["r32","R32","M73","South Korea (2A)","Group A runner-up",0],["r16","R16","M90","Netherlands","Winner M75",0],["qf","QF","M97","Germany or France","Winner M89",0],["sf","SF","M101","Spain / Belgium / USA","Winner QF M98",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Bosnia":    [["r32","R32","M74","Germany (1E)","3ABCDF slot",0],["r16","R16","M89","France","Winner M77",0],["qf","QF","M97","Netherlands","Winner M90",0],["sf","SF","M101","Spain / USA / Belgium","Winner QF M98",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Qatar":     [["exit","GS","—","Expected group stage exit","Proj. 4th in Group B",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "Brazil":    [["r32","R32","M76","Japan (2F)","Group F runner-up",0],["r16","R16","M91","Ecuador or Norway","Winner M78",0],["qf","QF","M99","England or Mexico","Winner M92",0],["sf","SF","M102","Argentina or Portugal","Winner QF M100",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Morocco":   [["r32","R32","M75","Netherlands (1F)","Group F winner",0],["r16","R16","M90","Canada or South Korea","Winner M73",0],["qf","QF","M97","Germany or France","Winner M89",0],["sf","SF","M101","Spain / Belgium / USA","Winner QF M98",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Scotland":  [["r32","R32","M79","Mexico (1A)","3CEFHI slot",0],["r16","R16","M92","England","Winner M80",0],["qf","QF","M99","Brazil","Winner M91",0],["sf","SF","M102","Argentina or Portugal","Winner QF M100",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Haiti":     [["exit","GS","—","Expected group stage exit","Proj. 4th in Group C",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "USA":       [["r32","R32","M81","Best 3rd (B/E/F/I/J)","e.g. Senegal",0],["r16","R16","M94","Belgium","Winner M82",0],["qf","QF","M98","Spain","Winner M93",0],["sf","SF","M101","Germany / France / Netherlands","Winner QF M97",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Türkiye":   [["r32","R32","M88","Egypt (2G)","Group G runner-up",0],["r16","R16","M95","Argentina","Winner M86",0],["qf","QF","M100","Portugal or Switzerland","Winner M96",0],["sf","SF","M102","Brazil or England","Winner QF M99",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Paraguay":  [["r32","R32","M77","France (1I)","3CDFGH slot — brutal draw",0],["r16","R16","M89","Germany","Winner M74",0],["qf","QF","M97","Netherlands","Winner M90",0],["sf","SF","M101","Spain / USA / Belgium","Winner QF M98",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Australia": [["exit","GS","—","Expected group stage exit","Proj. 4th in Group D",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "Germany":   [["r32","R32","M74","Best 3rd (A/B/C/D/F)","e.g. Bosnia",0],["r16w","R16 ⚠","M89","France (1I)","Locked if both win groups",1],["qf","QF","M97","Netherlands","Winner M90",0],["sf","SF","M101","Spain or USA / Belgium","Winner QF M98",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Ecuador":   [["r32","R32","M78","Norway (2I)","Group I runner-up",0],["r16","R16","M91","Brazil","Winner M76",0],["qf","QF","M99","England or Mexico","Winner M92",0],["sf","SF","M102","Argentina or Portugal","Winner QF M100",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Ivory Coast":[["r32","R32","M80","England (1L)","3EHIJK slot",0],["r16","R16","M92","Mexico","Winner M79",0],["qf","QF","M99","Brazil","Winner M91",0],["sf","SF","M102","Argentina or Portugal","Winner QF M100",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Curaçao":   [["exit","GS","—","Expected group stage exit","Proj. 4th in Group E",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "Netherlands":[["r32","R32","M75","Morocco (2C)","Group C runner-up",0],["r16","R16","M90","Canada or South Korea","Winner M73",0],["qf","QF","M97","Germany or France","Winner M89",0],["sf","SF","M101","Spain or USA / Belgium","Winner QF M98",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Japan":     [["r32","R32","M76","Brazil (1C)","Group C winner",0],["r16","R16","M91","Ecuador or Norway","Winner M78",0],["qf","QF","M99","England or Mexico","Winner M92",0],["sf","SF","M102","Argentina or Portugal","Winner QF M100",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Sweden":    [["r32","R32","M85","Switzerland (1B)","3EFGIJ slot",0],["r16","R16","M96","Portugal","Winner M87",0],["qf","QF","M100","Argentina","Winner M95",0],["sf","SF","M102","Brazil or England","Winner QF M99",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Tunisia":   [["exit","GS","—","Expected group stage exit","Proj. 4th in Group F",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "Belgium":   [["r32","R32","M82","Best 3rd (A/E/H/I/J)","e.g. Czechia",0],["r16","R16","M94","USA","Winner M81",0],["qf","QF","M98","Spain","Winner M93",0],["sf","SF","M101","Germany / France / Netherlands","Winner QF M97",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Egypt":     [["r32","R32","M88","Türkiye (2D)","Group D runner-up",0],["r16","R16","M95","Argentina","Winner M86",0],["qf","QF","M100","Portugal or Switzerland","Winner M96",0],["sf","SF","M102","Brazil or England","Winner QF M99",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Iran":      [["exit","GS","—","Eliminated — not best 8 3rd place","+50000 winner odds",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "New Zealand":[["exit","GS","—","Expected group stage exit","Proj. 4th in Group G",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "Spain":     [["r32","R32","M84","Runner-up Group J","Austria expected",0],["r16","R16","M93","Colombia or Croatia","Winner M83",0],["qf","QF","M98","USA or Belgium","Winner M94",0],["sf","SF","M101","Germany / France / Netherlands","Winner QF M97",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Uruguay":   [["r32","R32","M86","Argentina (1J)","Group J winner",0],["r16","R16","M95","Türkiye or Egypt","Winner M88",0],["qf","QF","M100","Portugal or Switzerland","Winner M96",0],["sf","SF","M102","Brazil or England","Winner QF M99",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Saudi Arabia":[["exit","GS","—","Eliminated — not best 8 3rd place","+100000 winner odds",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "Cape Verde":[["exit","GS","—","Expected group stage exit","Proj. 4th in Group H",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "France":    [["r32","R32","M77","Best 3rd (C/D/F/G/H)","e.g. Paraguay",0],["r16w","R16 ⚠","M89","Germany (1E)","Locked if both win groups",1],["qf","QF","M97","Netherlands","Winner M90",0],["sf","SF","M101","Spain or USA / Belgium","Winner QF M98",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Norway":    [["r32","R32","M78","Ecuador (2E)","Group E runner-up",0],["r16","R16","M91","Brazil","Winner M76",0],["qf","QF","M99","England or Mexico","Winner M92",0],["sf","SF","M102","Argentina or Portugal","Winner QF M100",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Senegal":   [["r32","R32","M81","USA (1D)","3BEFIJ slot",0],["r16","R16","M94","Belgium","Winner M82",0],["qf","QF","M98","Spain","Winner M93",0],["sf","SF","M101","Germany / France / Netherlands","Winner QF M97",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Iraq":      [["exit","GS","—","Expected group stage exit","Proj. 4th in Group I",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "Argentina": [["r32","R32","M86","Runner-up Group H","Uruguay expected",0],["r16","R16","M95","Türkiye or Egypt","Winner M88",0],["qf","QF","M100","Portugal or Switzerland","Winner M96",0],["sf","SF","M102","Brazil or England","Winner QF M99",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Austria":   [["r32","R32","M84","Spain (1H)","Group H winner",0],["r16","R16","M93","Colombia or Croatia","Winner M83",0],["qf","QF","M98","USA or Belgium","Winner M94",0],["sf","SF","M101","Germany / France / Netherlands","Winner QF M97",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Algeria":   [["exit","GS","—","Eliminated — not best 8 3rd place","+35000 winner odds",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "Jordan":    [["exit","GS","—","Expected group stage exit","Proj. 4th in Group J",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "Portugal":  [["r32","R32","M87","Best 3rd (D/E/I/J/L)","e.g. Ghana",0],["r16","R16","M96","Switzerland","Winner M85",0],["qf","QF","M100","Argentina","Winner M95",0],["sf","SF","M102","Brazil or England","Winner QF M99",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Colombia":  [["r32","R32","M83","Croatia (2L)","Group L runner-up",0],["r16","R16","M93","Spain","Winner M84",0],["qf","QF","M98","USA or Belgium","Winner M94",0],["sf","SF","M101","Germany / France / Netherlands","Winner QF M97",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "DR Congo":  [["exit","GS","—","Eliminated — not best 8 3rd place","+70000 winner odds",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "Uzbekistan":[["exit","GS","—","Expected group stage exit","Proj. 4th in Group K",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+  "England":   [["r32","R32","M80","Best 3rd (E/H/I/J/K)","e.g. Ivory Coast",0],["r16","R16","M92","Mexico","Winner M79",0],["qf","QF","M99","Brazil","Winner M91",0],["sf","SF","M102","Argentina or Portugal","Winner QF M100",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Croatia":   [["r32","R32","M83","Colombia (2K)","Group K runner-up",0],["r16","R16","M93","Spain","Winner M84",0],["qf","QF","M98","USA or Belgium","Winner M94",0],["sf","SF","M101","Germany / France / Netherlands","Winner QF M97",0],["fin","Final","M104","Right bracket winner","Brazil / England / Argentina / Portugal",0]],
+  "Ghana":     [["r32","R32","M87","Portugal (1K)","3DEIJL — only slot for Grp L 3rd",0],["r16","R16","M96","Switzerland","Winner M85",0],["qf","QF","M100","Argentina","Winner M95",0],["sf","SF","M102","Brazil or England","Winner QF M99",0],["fin","Final","M104","Left bracket winner","Germany / France / Spain / Belgium / Netherlands",0]],
+  "Panama":    [["exit","GS","—","Expected group stage exit","Proj. 4th in Group L",0],["exit","R32","—","—","",0],["exit","R16","—","—","",0],["exit","QF","—","—","",0],["exit","Final","—","—","",0]],
+};
+
+const PROBS={R32:2,R16:3,QF:4,SF:5,Final:6};
+function pct(v){return v>=.01?(v*100).toFixed(1)+'%':(v*100).toFixed(2)+'%';}
+
+// ── TABLE VIEW ──
+let sk='eg',sd=-1;
+function s(k){sk===k?sd*=-1:(sk=k,sd=k==='name'||k==='g'?1:-1);rt();}
+function rt(){
+  const q=document.getElementById('q1').value.toLowerCase();
+  const gf=document.getElementById('gf1').value;
+  let rows=T.filter(t=>(!q||t[0].toLowerCase().includes(q))&&(!gf||t[1]===gf));
+  const ki={name:0,g:1,pA:2,pR:3,pQ:4,pS:5,pF:6,pW:7,eg:8};
+  rows.sort((a,b)=>{
+    const av=a[ki[sk]];const bv=b[ki[sk]];
+    return typeof av==='string'?av.localeCompare(bv)*sd:(bv-av)*sd;
+  });
+  const mx=Math.max(...T.map(t=>t[8]));
+  document.getElementById('tb1').innerHTML=rows.map(t=>{
+    const gc=GC[t[1]];const ew=Math.round((t[8]/mx)*100);
+    return`<tr>
+      <td class="lft"><span class="gc" style="background:${gc}">${t[1]}</span>${t[0]}</td>
+      <td>${t[1]}</td>
+      <td><div class="bar-wrap"><div class="bar"><div class="bf" style="width:${Math.round(t[2]*100)}%;background:${gc}"></div></div><span>${(t[2]*100).toFixed(1)}%</span></div></td>
+      <td>${(t[3]*100).toFixed(1)}%</td>
+      <td>${(t[4]*100).toFixed(1)}%</td>
+      <td>${(t[5]*100).toFixed(1)}%</td>
+      <td>${(t[6]*100).toFixed(1)}%</td>
+      <td>${(t[7]*100).toFixed(2)}%</td>
+      <td><div class="bar-wrap"><div class="bar"><div class="bf" style="width:${ew}%;background:${gc}"></div></div><span class="eg">${t[8].toFixed(2)}</span></div></td>
+    </tr>`;
+  }).join('');
+  document.querySelectorAll('#v1 th').forEach(th=>{th.className=th.className.replace(/ ?s[ad]/g,'').trim()||'';const c=th.getAttribute('onclick')?.match(/s\('(\w+)'\)/)?.[1];if(c===sk)th.className+=(sd===-1?' sd':' sa');});
+}
+
+// ── SCHEDULE VIEW ──
+function rs(){
+  const q=document.getElementById('q2').value.toLowerCase();
+  const gf=document.getElementById('gf2').value;
+  const rows=T.filter(t=>(!q||t[0].toLowerCase().includes(q))&&(!gf||t[1]===gf));
+  document.getElementById('grid2').innerHTML=rows.map(t=>{
+    const nm=t[0],gc=GC[t[1]],eg=t[8].toFixed(2);
+    const dim=t[2]<.4;
+    const gs=GS[nm]||[];
+    const ko=KO[nm]||[];
+    const gsRows=gs.map((g,i)=>`<div class="srow gs">
+      <div class="sl"><span class="sl-s">GS${i+1}</span><span class="sl-m">${g[0]}</span></div>
+      <div class="ri"><span class="ri-o">vs ${g[1]}</span></div>
+    </div>`).join('');
+    const koRows=ko.map(k=>{
+      const stg=k[1].replace(' ⚠','');
+      const pi=PROBS[stg]||PROBS['Final'];
+      const prob=t[pi];
+      const isExit=k[0]==='exit';
+      return`<div class="srow ${k[0]}">
+        <div class="sl">
+          <span class="sl-s">${k[1]}</span>
+          <span class="sl-m">${isExit?'':k[2]}</span>
+          <span class="sl-p">${isExit?'':pct(prob)}</span>
+        </div>
+        <div class="ri">
+          <span class="ri-o${k[5]?' warn':isExit?' muted':''}">${k[3]}</span>
+          ${k[4]?`<span class="ri-s">${k[4]}</span>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    return`<div class="card${dim?' dim':''}">
+      <div class="ch" style="background:${gc}">
+        <div class="ch-l"><span class="ch-name">${nm}</span><span class="ch-sub">Group ${t[1]}</span></div>
+        <span class="ch-r">${eg} exp games</span>
+      </div>
+      ${gsRows}
+      <div class="proj-divider">↓ Projected path (scenario based on expected group finish)</div>
+      ${koRows}
+    </div>`;
+  }).join('');
+}
+
+// ── VIEW TOGGLE ──
+function sv(n){
+  document.getElementById('v1').style.display=n===1?'':'none';
+  document.getElementById('v2').style.display=n===2?'':'none';
+  document.getElementById('vb1').className='vb'+(n===1?' on':'');
+  document.getElementById('vb2').className='vb'+(n===2?' on':'');
+  if(n===2)rs();
+}
+
+// ── CSV DOWNLOAD ──
+function dl(){
+  const rows=[['Team','Group','P_Advance','P_R16','P_QF','P_SF','P_Final','P_Win','Expected_Games']];
+  [...T].sort((a,b)=>b[8]-a[8]).forEach(t=>{rows.push([t[0],t[1],(t[2]*100).toFixed(1),(t[3]*100).toFixed(1),(t[4]*100).toFixed(1),(t[5]*100).toFixed(1),(t[6]*100).toFixed(1),(t[7]*100).toFixed(2),t[8].toFixed(4)]);});
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(r=>r.join(',')).join('\n'));
+  a.download='WC2026_All48_Stage_Probs.csv';a.click();
+}
+
+rt();
+</script>

@@ -81,13 +81,13 @@ tr:hover td{background:#2a2a2a}
 <div class="tbl-wrap">
 <table><thead><tr>
   <th class="lft" onclick="s('name')">Team</th>
+  <th onclick="s('pW')">P(Win)</th>
   <th onclick="s('g')">Grp</th>
   <th onclick="s('pA')">P(Advance)</th>
   <th onclick="s('pR')">P(R16)</th>
   <th onclick="s('pQ')">P(QF)</th>
   <th onclick="s('pS')">P(SF)</th>
   <th onclick="s('pF')">P(Final)</th>
-  <th onclick="s('pW')">P(Win)</th>
   <th onclick="s('eg')">E[Games]</th>
 </tr></thead>
 <tbody id="tb1"></tbody></table>
@@ -277,7 +277,7 @@ const PROBS={R32:2,R16:3,QF:4,SF:5,Final:6};
 function pct(v){return v>=.01?(v*100).toFixed(1)+'%':(v*100).toFixed(2)+'%';}
 
 // ── TABLE VIEW ──
-let sk='eg',sd=-1;
+let sk='pW',sd=-1;
 function s(k){sk===k?sd*=-1:(sk=k,sd=k==='name'||k==='g'?1:-1);rt();}
 function rt(){
   const q=document.getElementById('q1').value.toLowerCase();
@@ -293,13 +293,13 @@ function rt(){
     const gc=GC[t[1]];const ew=Math.round((t[8]/mx)*100);
     return`<tr>
       <td class="lft"><span class="gc" style="background:${gc}">${t[1]}</span>${t[0]}</td>
+      <td>${(t[7]*100).toFixed(2)}%</td>
       <td>${t[1]}</td>
       <td><div class="bar-wrap"><div class="bar"><div class="bf" style="width:${Math.round(t[2]*100)}%;background:${gc}"></div></div><span>${(t[2]*100).toFixed(1)}%</span></div></td>
       <td>${(t[3]*100).toFixed(1)}%</td>
       <td>${(t[4]*100).toFixed(1)}%</td>
       <td>${(t[5]*100).toFixed(1)}%</td>
       <td>${(t[6]*100).toFixed(1)}%</td>
-      <td>${(t[7]*100).toFixed(2)}%</td>
       <td><div class="bar-wrap"><div class="bar"><div class="bf" style="width:${ew}%;background:${gc}"></div></div><span class="eg">${t[8].toFixed(2)}</span></div></td>
     </tr>`;
   }).join('');
